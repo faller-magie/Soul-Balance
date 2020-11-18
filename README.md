@@ -1,1 +1,2 @@
-Soul Balance
+# Soul Balance
+Solo Unity project.
