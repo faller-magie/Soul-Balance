@@ -6,11 +6,17 @@ using UnityEngine.InputSystem;
 public class ShayaController : MonoBehaviour
 {
     [SerializeField] private float gravity;
+    [SerializeField] private float rotationSpeed;
+    [SerializeField] private float speed;
 
     private Controls controls;
     private Vector2 direction;
     private Vector3 direction3D;
     private CharacterController controller;
+
+    private Camera mainCam;
+
+    private Vector3 mouvement;
 
     private void OnEnable()
     {
@@ -24,8 +30,7 @@ public class ShayaController : MonoBehaviour
     private void OnMovePerformed(InputAction.CallbackContext obj)
     {
         direction = obj.ReadValue<Vector2>();
-        direction3D = new Vector3(direction.x, 0, direction.y);;
-        Debug.Log(direction);
+        direction3D = new Vector3(direction.x, 0, direction.y);
     }
 
     private void OnMoveCanceled(InputAction.CallbackContext obj)
@@ -38,13 +43,13 @@ public class ShayaController : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        
+        mainCam = Camera.main;
     }
 
     // Update is called once per frame
     void Update()
     {
-        var mouvement = ApplyMove() + ApplyGravity();
+        mouvement = ApplyMove() + ApplyGravity();
         controller.Move(mouvement * Time.deltaTime);
     }
 
@@ -57,9 +62,13 @@ public class ShayaController : MonoBehaviour
 
         var rotation = Quaternion.LookRotation(direction3D);
 
+        rotation *= Quaternion.Euler(0, mainCam.transform.rotation.eulerAngles.y, 0);
+
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, rotation, rotationSpeed * Time.deltaTime);
+
         var moveDirection = rotation * Vector3.forward;
 
-        return moveDirection.normalized * 25;
+        return moveDirection.normalized * speed;
     }
 
     private Vector3 ApplyGravity()
