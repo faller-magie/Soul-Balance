@@ -9,6 +9,9 @@ public class ShayaController : MonoBehaviour
     [SerializeField] private float rotationSpeed;
     [SerializeField] private float speed;
 
+    [SerializeField] private float dashSpeed;
+    [SerializeField] private float dashTime;
+
     private Controls controls;
     private Vector2 direction;
     private Vector3 direction3D;
@@ -24,6 +27,7 @@ public class ShayaController : MonoBehaviour
         controls.Enable();
         controls.Player.Move.performed += OnMovePerformed;
         controls.Player.Move.canceled += OnMoveCanceled;
+        controls.Player.Dash.performed += OnDashPerformed;
 
     }
 
@@ -37,6 +41,11 @@ public class ShayaController : MonoBehaviour
     {
         direction = Vector2.zero;
         direction3D = Vector3.zero;
+    }
+
+    private void OnDashPerformed(InputAction.CallbackContext obj)
+    {
+        StartCoroutine(Dash());
     }
 
     // Start is called before the first frame update
@@ -75,5 +84,16 @@ public class ShayaController : MonoBehaviour
     {
         var falling = new Vector3(0, gravity, 0);
         return falling;
+    }
+
+    IEnumerator Dash()
+    {
+        float startTime = Time.time;
+        while (Time.time < startTime + dashTime)
+        {
+            controller.Move(controller * dashSpeed * Time.deltaTime);
+
+            yield return null;
+        }
     }
 }
